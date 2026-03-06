@@ -14,15 +14,21 @@ const Route = class {
     if (window.location.pathname === this.route && !this.priv) {
       const token = localStorage.getItem('token');
 
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
       axios.get('http://127.0.0.1:3000/auth', {
         headers: {
-          authorization: token
+          authorization: `Bearer ${token}`
         }
       })
         .then(() => {
           const page = new this.Page(this.body);
           page.run();
-        }).catch(() => {
+        }).catch((error) => {
+          console.error('Auth error:', error);
           window.location.href = '/login';
         });
 

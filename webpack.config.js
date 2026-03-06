@@ -1,12 +1,12 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js',
   output: {
-    filename: 'src/[name].[fullhash].js',
-    path: path.resolve(__dirname, 'dist')
+    filename: '[name].[fullhash].js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: true
   },
   module: {
     rules: [
@@ -37,29 +37,19 @@ module.exports = {
     ],
   },
   devServer: {
-    historyApiFallback: true,
-    host: '127.0.0.1',
-    port: 9090,
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
+    compress: true,
+    port: 9091,
     open: true,
     hot: true,
-    client: {
-      logging: 'none',
-      overlay: true,
-      progress: true,
-      webSocketTransport: 'ws'
-    },
-    webSocketServer: 'ws'
+    historyApiFallback: true
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/index.html'),
-      inject: 'body',
-      hash: true
-    }),
-    new ESLintPlugin({
-      extensions: 'js',
-      exclude: 'node_modules',
-      files: './src/'
+      inject: 'body'
     })
   ]
 };

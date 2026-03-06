@@ -1,12 +1,12 @@
 module.exports = {
   development: {
     type: 'development',
-    port: 3000,
-    mongodb: ''
+    port: process.env.PORT || 3000,
+    mongodb: process.env.MONGODB_URI || 'mongodb://localhost:27017/mongodb-secure'
   },
   production: {
     type: 'production',
-    port: 3000,
-    mongodb: ''
+    port: process.env.PORT || 3000,
+    mongodb: process.env.MONGODB_URI || 'mongodb://localhost:27017/mongodb-secure'
   }
 }

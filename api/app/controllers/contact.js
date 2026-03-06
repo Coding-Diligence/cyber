@@ -1,4 +1,6 @@
 const ContactModel = require('../models/contact.js')
+const Joi = require('joi')
+const { authenticateToken } = require('../middleware.js')
 
 const Contact = class Contact {
   /**
@@ -16,6 +18,18 @@ const Contact = class Contact {
   create () {
     this.app.post('/contact/', (req, res) => {
       try {
+        const schema = Joi.object({
+          firstName: Joi.string().required(),
+          lastName: Joi.string().required(),
+          mobilePhone: Joi.string().pattern(/^0[6-7][0-9]{8}$/).required(),
+          email: Joi.string().email().required(),
+          arrivedAt: Joi.date().required(),
+          departureAt: Joi.date().greater(Joi.ref('arrivedAt')).required(),
+          message: Joi.string().required()
+        })
+        const { error } = schema.validate(req.body)
+        if (error) return res.status(400).json({ code: 400, message: 'Invalid input' })
+
         const contactModel = new this.ContactModel(req.body);
 
         contactModel.save().then((contact) => {
@@ -38,7 +52,7 @@ const Contact = class Contact {
   }
 
     all () {
-      this.app.get('/contacts/', (req, res) => {
+      this.app.get('/contacts/', authenticateToken, (req, res) => {
         try {
           this.ContactModel.find().sort({ createdAt: -1 }).then((contact) => {
             res.status(200).json(contact || {})
@@ -49,7 +63,7 @@ const Contact = class Contact {
             })
           })
         } catch (err) {
-          console.error(`[ERROR] POST contacts/ -> ${err}`)
+          console.error(`[ERROR] GET contacts/ -> ${err}`)
   
           res.status(500).json({
             code: 500,
@@ -60,9 +74,8 @@ const Contact = class Contact {
     }
 
     delete () {
-      this.app.delete('/contact/:id', (req, res) => {
+      this.app.delete('/contact/:id', authenticateToken, (req, res) => {
         try {
-          console.log(req.params);
           this.ContactModel.findByIdAndDelete(req.params.id).then((contact) => {
             res.status(200).json(contact || {})
           }).catch(() => {
@@ -72,7 +85,7 @@ const Contact = class Contact {
             })
           })
         } catch (err) {
-          console.error(`[ERROR] POST contacts/ -> ${err}`)
+          console.error(`[ERROR] DELETE contact/:id -> ${err}`)
   
           res.status(500).json({
             code: 500,
@@ -82,9 +95,6 @@ const Contact = class Contact {
       })
     }
 
-  /**
-   * Run
-   */
   run () {
     this.delete()
     this.all()

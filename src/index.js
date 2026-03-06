@@ -19,4 +19,5 @@ const routeFeedback = new Route('/feedback', Feedback);
 const routeAdmin = new Route('/admin', Admin, true);
 const routeLogin = new Route('/login', Login);
 
-console.log(routeContact, routeHome, routePricing, routeGeo, routeFeedback, routeAdmin, routeLogin);
+// Enlever les commentaires pour tester les routes
+// console.log(routeContact, routeHome, routePricing, routeGeo, routeFeedback, routeAdmin, routeLogin);

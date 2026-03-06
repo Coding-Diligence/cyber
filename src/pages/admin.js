@@ -10,7 +10,7 @@ const Admin = class {
   run() {
     axios.get('http://127.0.0.1:3000/contacts', {
       headers: {
-        authorization: localStorage.getItem('token')
+        authorization: `Bearer ${localStorage.getItem('token')}`
       }
     }).then((response) => {
       this.dataMessages = response.data;
@@ -74,7 +74,11 @@ const Admin = class {
   }
 
   onClickDelete(id) {
-    axios.delete(`http://127.0.0.1:3000/contact/${id}`).then(() => {
+    axios.delete(`http://127.0.0.1:3000/contact/${id}`, {
+      headers: {
+        authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    }).then(() => {
       window.location = '/admin';
     });
   }

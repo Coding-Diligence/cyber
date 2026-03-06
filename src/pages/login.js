@@ -16,16 +16,16 @@ const Login = class {
     formEl.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const dataForm = JSON.parse(JSON.stringify(Object.fromEntries(new FormData(formEl))));
+      const dataForm = new FormData(formEl);
+      const data = Object.fromEntries(dataForm);
 
-      axios.get(`http://127.0.0.1:3000/login?login=${dataForm.name}&password=${dataForm.password}`)
+      axios.post(`http://127.0.0.1:3000/login`, data, { withCredentials: true })
         .then((response) => {
-          const { token } = response.data;
-          localStorage.setItem('token', token);
-
+          localStorage.setItem('token', response.data.token);
           window.location.href = '/admin';
-        }).catch(() => {
-          console.log('badddd');
+        }).catch((error) => {
+          console.error('Erreur de connexion:', error);
+          alert('Erreur de connexion - Vérifiez vos identifiants');
         });
     });
   }

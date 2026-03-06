@@ -1,4 +1,6 @@
 const FeedbackModel = require('../models/feedback.js')
+const Joi = require('joi')
+const { authenticateToken } = require('../middleware.js')
 
 const Feedback = class Feedback {
   /**
@@ -19,6 +21,14 @@ const Feedback = class Feedback {
   create () {
     this.app.post('/feedback/', (req, res) => {
       try {
+        const schema = Joi.object({
+          name: Joi.string().required(),
+          email: Joi.string().email().required(),
+          message: Joi.string().required()
+        })
+        const { error } = schema.validate(req.body)
+        if (error) return res.status(400).json({ code: 400, message: 'Invalid input' })
+
         const feedbackModel = new this.FeedbackModel(req.body);
 
         feedbackModel.save().then((feedback) => {
@@ -44,7 +54,7 @@ const Feedback = class Feedback {
    * Middleware
    */
     all () {
-      this.app.get('/feedback/', (req, res) => {
+      this.app.get('/feedback/', authenticateToken, (req, res) => {
         try {
           this.FeedbackModel.find().sort({ createdAt: -1 }).then((feedback) => {
             res.status(200).json(feedback || {})
@@ -55,7 +65,7 @@ const Feedback = class Feedback {
             })
           })
         } catch (err) {
-          console.error(`[ERROR] POST feedbacks/ -> ${err}`)
+          console.error(`[ERROR] GET feedbacks/ -> ${err}`)
   
           res.status(500).json({
             code: 500,
@@ -66,7 +76,7 @@ const Feedback = class Feedback {
     }
 
     delete () {
-      this.app.delete('/feedback/', (req, res) => {
+      this.app.delete('/feedback/:id', authenticateToken, (req, res) => {
         try {
           this.FeedbackModel.findByIdAndDelete(req.params.id).then((feedback) => {
             res.status(200).json(feedback || {})
@@ -77,7 +87,7 @@ const Feedback = class Feedback {
             })
           })
         } catch (err) {
-          console.error(`[ERROR] POST feedbacks/ -> ${err}`)
+          console.error(`[ERROR] DELETE feedback/:id -> ${err}`)
   
           res.status(500).json({
             code: 500,
